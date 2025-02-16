@@ -1,0 +1,34 @@
+services:
+  frigate:
+    container_name: frigate
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    privileged: true
+    devices:
+      - /dev/bus/usb:/dev/bus/usb # CORAL USB TPU PASSTHROUGH
+    volumes:
+      - ${MAINPATH}/config:/config
+      - ${MAINPATH}/storage:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000" #NO AUTH
+      - "8554:8554"
+      - "8971:8971"
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+    restart: unless-stopped
+    volumes:
+      - ${MAINPATH_MQTT}:/mosquitto
+      - ${MAINPATH_MQTT}/data:/mosquitto/data
+      - ${MAINPATH_MQTT}/log:/mosquitto/log
+    ports:
+      - 1883:1883
+      - 9002:9001

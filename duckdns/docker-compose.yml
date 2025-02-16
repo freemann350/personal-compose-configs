@@ -1,0 +1,11 @@
+services:
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - TZ=Europe/Lisbon #optional
+      - SUBDOMAINS=golanproject.duckdns.org
+      - TOKEN=${TOKEN}
+    volumes:
+      - ${MAINPATH}/config:/config #optional
+    restart: unless-stopped

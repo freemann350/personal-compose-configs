@@ -1,0 +1,64 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    deploy:
+      placement:
+        constraints:
+          - node.role==manager
+    volumes:
+      - ${MAINPATH_PTS}/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${MAINPATH_PTS}/data:/prometheus
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: "$UID:$GID"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    extra_hosts:
+      - ${HOST_A}
+  prometheus-pve-exporter:
+    image: prompve/prometheus-pve-exporter:latest
+    container_name: prometheus-pve-exporter
+    init: true
+    extra_hosts:
+      - ${HOST_B}
+    volumes:
+      - ${MAINPATH_PTS}/pve.yml:/etc/prometheus/pve.yml
+    restart: unless-stopped
+  prometheus-frigate-exporter:
+    image: rhysbailey/prometheus-frigate-exporter:latest
+    container_name: prometheus-frigate-exporter
+    restart: unless-stopped
+    environment:
+      - FRIGATE_STATS_URL=${FRIGATE_STATS_URL}
+  prometheus-snmp-exporter:
+    container_name: prometheus-snmp-exporter
+    image: quay.io/prometheus/snmp-exporter:v0.26.0
+    extra_hosts:
+      - ${HOST_C}
+    #ports:
+    #  - "9116:9116"
+    #  - "161:161/udp"
+    volumes:
+      - ${MAINPATH_PTS}/snmp-exporter:/etc/snmp-exporter
+    command: --config.file=/etc/snmp-exporter/snmp.yml
+    restart: unless-stopped
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ${MAINPATH_LOKI}/loki:/etc/loki
+    command: >-
+      -config.file=/etc/loki/config.yaml
+      -frontend.instance-addr=127.0.0.1
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ${MAINPATH_LOGS}:/var/log:ro
+      - ${MAINPATH_PTL}:/etc/promtail:ro
+    command: -config.file=/etc/promtail/config.yml

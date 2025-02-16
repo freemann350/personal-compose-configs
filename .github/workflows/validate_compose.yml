@@ -1,0 +1,42 @@
+name: Validate docker-compose files
+run-name: Docker compose validation (triggered by ${{ github.actor }})
+on: [push, workflow_dispatch]
+jobs:
+  Docker-Compose-Validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+        continue-on-error: false
+      
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: List available docker-compose files
+        run: find */docker-compose.yml
+        working-directory: ${{ github.workspace }}
+
+      - name: Validate docker-compose syntax
+        run: |
+          FAILED_PROJECTS=""
+          for i in $(find */docker-compose.yml); do
+            echo -e "Testing compose file '$i'"
+            if docker-compose -f "$i" config -q; then
+              echo -e "\n✅ Docker Compose OK\n----------------"
+            else
+              echo -e "\n❌ This Docker Compose has errors\n----------------"
+              FAILED_PROJECTS="$FAILED_PROJECTS\n$i"
+            fi
+          done
+          
+          if [ -n "$FAILED_PROJECTS" ]; then
+            echo -e "\n🚨 The following Docker Compose files failed validation: $FAILED_PROJECTS"
+            exit 1
+          else
+            echo -e "\n✅ All Docker Compose files validated successfully!"
+          fi
+        working-directory: ${{ github.workspace }}

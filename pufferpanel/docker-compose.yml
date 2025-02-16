@@ -1,0 +1,16 @@
+services:
+  pufferpanel:
+    image: pufferpanel/pufferpanel:latest
+    container_name: pufferpanel
+    volumes:
+      - ${MAINPATH}/etc:/etc/pufferpanel 
+      - ${MAINPATH}/var:/var/lib/pufferpanel
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8080:8080 
+      - 5657:5657 
+      - 7777:7777 # TERRARIA
+      - 16261:16261/udp # PZ
+      - 16262:16262/udp # PZ
+      - 5657:5657/tcp #SFTP
+    restart: unless-stopped

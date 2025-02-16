@@ -1,0 +1,27 @@
+services:
+  reverse-proxy:
+    container_name: traefik
+    restart: unless-stopped
+    # The official v2 Traefik docker image
+    image: traefik:latest
+    # Enables the web UI and tells Traefik to listen to docker
+    #command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8086:8080"
+      # TERRARIA PORT FORWARDING
+      - "7777:7777"
+      # MINECRAFT PORT FORWARDING
+      - "25565:25565"
+      # PZ PORT FORWARDING
+      - "16261:16261/udp"
+      - "16262:16262/udp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${MAINPATH}/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ${MAINPATH}/dynamic:/etc/traefik/dynamic
+      - ${MAINPATH}/certs:/etc/traefik/certs
+      - ${MAINPATH}/logs:/etc/traefik/logs

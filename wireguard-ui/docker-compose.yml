@@ -1,0 +1,39 @@
+services:
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ${MAINPATH}/config:/config
+    ports:
+      - "5000:5000"
+      - "${WG_PORT}:51820/udp"
+    restart: unless-stopped
+
+  wireguard-ui:
+    image: ngoduykhanh/wireguard-ui:latest
+    container_name: wireguard-ui
+    depends_on:
+      - wireguard
+    cap_add:
+      - NET_ADMIN
+    network_mode: service:wireguard
+    environment:
+      - SENDGRID_API_KEY
+      - EMAIL_FROM_ADDRESS
+      - EMAIL_FROM_NAME
+      - SESSION_SECRET
+      - WGUI_USERNAME=${USERNAME}
+      - WGUI_PASSWORD=${PASSWORD}
+      - WG_CONF_TEMPLATE
+      - WGUI_MANAGE_START=true
+      - WGUI_MANAGE_RESTART=true
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+    volumes:
+      - ${MAINPATH_UI}/wireguard-ui/db:/app/db
+      - ${MAINPATH_UI}/wireguard-ui/config:/etc/wireguard
+    restart: unless-stopped

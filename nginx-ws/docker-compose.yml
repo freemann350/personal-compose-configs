@@ -1,0 +1,8 @@
+services:
+  web:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "8008:80"
+    volumes:
+      - ${MAINPATH}/html:/usr/share/nginx/html

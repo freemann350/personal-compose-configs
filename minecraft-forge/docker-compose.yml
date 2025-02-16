@@ -1,0 +1,26 @@
+services:
+  mc:
+    container_name: minecraft-atm9
+    image: itzg/minecraft-server
+    ports:
+      - "25565:25565"
+    environment:
+      TZ: Europe/Lisbon
+      EULA: "true"
+      MOTD: "GolanProject ATM9 Server\n§9 by freemann350"
+      TYPE: FORGE
+      MAX_PLAYERS: 8
+      ENABLE_WHITELIST: true
+      SERVER_PORT: 25565
+      VERSION: "1.20.1"
+      ALLOW_FLIGHT: true
+      FORGE_VERSION: "47.2.20"
+      ONLINE_MODE: true
+      MEMORY: ""
+      JVM_OPTS: "-Xmx21G -Xms12G -Dsun.rmi.dgc.server.gcInterval=2147483646"
+      JVM_XX_OPTS: "-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M"
+      LEVEL: leiria
+      SERVER_NAME: GolanProject
+    volumes:
+      - ${MAINPATH}:/data:rw
+    restart: unless-stopped
