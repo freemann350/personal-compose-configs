@@ -28,7 +28,7 @@ This repository contains **Docker Compose files** for the following services:
 ## 📦 **Usage**
 1. **Clone the repository**:  
    ```bash
-   git clone https://github.com/yourusername/personal-compose-configs.git
+   git clone https://github.com/freemann350/personal-compose-configs.git
    cd personal-compose-configs
    ```
 
